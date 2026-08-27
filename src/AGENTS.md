@@ -12,16 +12,15 @@
         Typical data flow (concrete example): `Program.cs` (CLI) parses flags and files → resolves `ITextReaderLogic` from `WCountLib.Abstractions.Logic` → `TextReaderLogic.ReadTextReaderAsync` (in `WCountLib.Logic`) reads input in 8KB buffers (`char[8192]`) → for each chunk it calls counters (`IWordCounter`, `ICharacterCounter`, `IByteCounter`) → results aggregated into `WCountInfo` and printed by `ResultPrintingHelper`.
 
         ## CLI (WCountCli) – what agents must know
-        - Entry point: `WCountCli/Program.cs`. DI registrations live here (singletons: `IWordDetector`, `IWordCounter`, `ICharacterCounter`, `IByteCounter`, `ITextReaderLogic`). Prefer resolving interfaces, not concrete types.
+        - Entry point: `WCountCli/Program.cs`. DI registrations live here (singletons: `IWordCounter`, `ICharacterCounter`, `IByteCounter`, `ITextReaderLogic`). Prefer resolving interfaces, not concrete types.
         - Arguments: uses `System.CommandLine`. Examples from `Program.cs`: `-w` (words), `-l` (lines), `-m` (chars), `-c` (bytes), `-v` (verbose). When running manually forward CLI args after `--` when using `dotnet run`.
         - Text I/O: `TextReaderLogic` (in `lib/WCountLib/Logic/`) reads stdin via `Console.In` and files via `File.OpenText(...)`, passing counts to the CLI. Breakpoints for debugging: `TextReaderLogic.ReadTextReaderAsync` and `ReadTextChunk`.
         - Output formatting: `WCountCli/Helpers/ResultPrintingHelper.cs` and `FormattingHelpers.cs` control human-readable output and localization strings (`Localizations/Resources.resx`).
 
         ## Libraries (WCountLib and WCountLib.Abstractions)
-        - Abstractions: `WCountLib.Abstractions` contains interfaces (e.g., `IWordCounter`, `ICharacterCounter`, `IByteCounter`, `IWordDetector`) — implementations must remain compatible with the contracts.
+        - Abstractions: `WCountLib.Abstractions` contains interfaces (e.g., `IWordCounter`, `ICharacterCounter`, `IByteCounter`) — implementations must remain compatible with the contracts.
         - Implementation notes:
           - `WordCounter` counts whitespace-separated tokens via `string.Split(null, StringSplitOptions.RemoveEmptyEntries)` to match classic `wc` behaviour. It does not use parallelism. See `WCountLib/Counters/WordCounter.cs`.
-          - `WordDetector` encapsulates what counts as a word; it has multiple overloads (`string`, `char[]`, `IEnumerable<char>`). If you change word detection, check both counters and tests.
           - `TextReaderLogic` (in `WCountLib/Logic/`) performs chunked counting and handles platform line endings (CRLF vs LF) in `ReadTextChunk` — changes here affect cross-platform behavior. `WCountInfo` (in `WCountLib.Abstractions/Models/`) holds the counting results.
 
         ## Build, pack, run and test (commands agents should use)
@@ -58,7 +57,7 @@
         - Global usings: `GlobalUsings.cs` files provide common imports for each project — add new global usings there rather than per-file.
         - Nullable/reference semantics: projects enable nullable (`<Nullable>enable</Nullable>`). Many aggregates use `long?` for optional counts (see `WCountInfo`).
         - Encoding & bytes: byte counting uses `Encoding.Default` (system encoding) by design; falling back to `UTF8` only if `Encoding.Default` throws (`NotSupportedException` / `ArgumentException`). `TextReaderLogic.ResolveDefaultEncoding` centralises this policy.
-        - Parallel patterns: `WordCounter` increments a shared counter using `Interlocked` after partitioned work. When editing, preserve thread-safety.
+        - Parallel patterns: `WordCounter` counts tokens via `string.Split` (single-threaded, no shared counter). When editing, preserve wc-compatible token semantics.
         - Line ending logic: `ReadTextChunk` tracks a `hasCharWasCR` flag to detect CRLF sequences on Windows — be careful when refactoring this logic.
         - External Libraries: 
           - In `WCountCli`, external libraries (e.g. `System.CommandLine`) are necessary and acceptable.
@@ -80,8 +79,7 @@
         - `lib/WCountLib/Logic/TextReaderLogic.cs` — chunked reading, encoding and line handling
         - `lib/WCountLib.Abstractions/Models/WCountInfo.cs` — counting result model
         - `lib/WCountLib.Abstractions/Logic/ITextReaderLogic.cs` — counting interface
-        - `lib/WCountLib/Counters/WordCounter.cs` — parallel counting pattern
-        - `lib/WCountLib/Detectors/WordDetector.cs` — rules that define what a "word" is
+        - `lib/WCountLib/Counters/WordCounter.cs` — wc-token counting
         - `Directory.Packages.props` — central package versions
         - `GlobalUsings.cs` files — shared imports per project
 

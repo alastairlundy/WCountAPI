@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using WCountLib.Abstractions.Models;
 using WCountLib.Counters;
-using WCountLib.Detectors;
 using WCountLib.Logic;
 
 namespace WCountLib.Testing.Logic;
@@ -18,7 +17,7 @@ public class TextReaderLogicTests
 
     public TextReaderLogicTests()
     {
-        _logic = new TextReaderLogic(new WordCounter(new WordDetector()), new ByteCounter(), new CharacterCounter());
+        _logic = new TextReaderLogic(new WordCounter(), new ByteCounter(), new CharacterCounter());
     }
 
     private static CancellationToken Ct => CancellationToken.None;

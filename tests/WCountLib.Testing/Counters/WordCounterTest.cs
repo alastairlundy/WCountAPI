@@ -5,7 +5,7 @@ namespace WCountLib.Testing.Counters;
 
 public class WordCounterTest
 {
-    private readonly WordCounter _counter = new(new WordDetector());
+    private readonly WordCounter _counter = new();
 
     [Test]
     [MethodDataSource<RealWordsTestData>(nameof(RealWordsTestData.GetAllData))]

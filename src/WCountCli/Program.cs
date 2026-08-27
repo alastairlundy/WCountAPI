@@ -13,14 +13,11 @@ using Microsoft.Extensions.DependencyInjection;
 using WCountCli.Logic;
 using WCountLib.Abstractions.Logic;
 using WCountLib.Logic;
-using WCountLib.Abstractions.Detectors;
 using WCountLib.Counters;
-using WCountLib.Detectors;
 
 IServiceCollection services = new ServiceCollection();
 
-services.AddSingleton<IWordDetector, WordDetector>();
-services.AddSingleton<IWordCounter, WordCounter>();
+    services.AddSingleton<IWordCounter, WordCounter>();
 services.AddSingleton<ICharacterCounter, CharacterCounter>();
 services.AddSingleton<IByteCounter, ByteCounter>();
 services.AddSingleton<ITextReaderLogic, TextReaderLogic>();
