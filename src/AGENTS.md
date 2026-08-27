@@ -20,7 +20,7 @@
         ## Libraries (WCountLib and WCountLib.Abstractions)
         - Abstractions: `WCountLib.Abstractions` contains interfaces (e.g., `IWordCounter`, `ICharacterCounter`, `IByteCounter`, `IWordDetector`) — implementations must remain compatible with the contracts.
         - Implementation notes:
-          - `WordCounter` counts whitespace-separated tokens via `string.Split(null, StringSplitOptions.RemoveEmptyEntries)` to match classic `wc` behaviour. It does not use parallelism or `EnhancedLinq` directly (`EnhancedLinq` is still used by `SegmentWordDetector`). See `WCountLib/Counters/WordCounter.cs`.
+          - `WordCounter` counts whitespace-separated tokens via `string.Split(null, StringSplitOptions.RemoveEmptyEntries)` to match classic `wc` behaviour. It does not use parallelism. See `WCountLib/Counters/WordCounter.cs`.
           - `WordDetector` encapsulates what counts as a word; it has multiple overloads (`string`, `char[]`, `IEnumerable<char>`). If you change word detection, check both counters and tests.
           - `TextReaderLogic` (in `WCountLib/Logic/`) performs chunked counting and handles platform line endings (CRLF vs LF) in `ReadTextChunk` — changes here affect cross-platform behavior. `WCountInfo` (in `WCountLib.Abstractions/Models/`) holds the counting results.
 
