@@ -5,6 +5,6 @@
   <ItemGroup>
     <PackageVersion Include="Microsoft.Extensions.Primitives" Version="10.0.7" />
     <PackageVersion Include="Polyfill" Version="10.4.0" />
-    <PackageVersion Include="TUnit" Version="1.65.31" />
+    <PackageVersion Include="TUnit" Version="1.65.68" />
   </ItemGroup>
 </Project>
